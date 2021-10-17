@@ -1,93 +1,155 @@
 #include <stdio.h>
 
-int lastx = 0;
-int stack[4] = {0, 0, 0, 0};
+int INSERT = 1, ROLL = 2;
+int action = 0;
+int l = 0, x = 0, y = 0, z = 0, t = 0;
+int decimals = 2;
+int reg;
+
+void show() {
+    printf("lstx: %i\nx: %i y: %i z: %i t: %i\n", l, x, y, z, t);
+}
+
+void insert(int c) {
+    if (action == ROLL) {
+        t = z;
+        z = y;
+        y = x;
+    }
+    if (action != INSERT) {
+        action = INSERT;
+        x = 0;
+    }
+
+    //x = parseFloat(x.toString() + c.toString());
+    x = c;
+    show();
+}
 
 void enter() {
-    stack[3] = stack[2];
-    stack[2] = stack[1];
-    stack[1] = stack[0];
+    action = 0;
+    t = z;
+    z = y;
+    y = x;
+    show();
 }
 
 void add() {
-    lastx = stack[0];
-    stack[0] = stack[1] + stack[0];
-    stack[2] = stack[3];
-    stack[1] = stack[2];
+    action = ROLL;
+    l = x;
+    x = y + x;
+    z = t;
+    y = z;
+    show();
 }
 
 void sub() {
-    lastx = stack[0];
-    stack[0] = stack[1] - stack[0];
-    stack[2] = stack[3];
-    stack[1] = stack[2];
+    action = ROLL;
+    l = x;
+    x = y - x;
+    z = t;
+    y = z;
+    show();
 }
 
 void mul() {
-    lastx = stack[0];
-    stack[0] = stack[1] * stack[0];
-    stack[2] = stack[3];
-    stack[1] = stack[2];
+    action = ROLL;
+    l = x;
+    x = y * x;
+    z = t;
+    y = z;
+    show();
 }
 
 void div() {
-    lastx = stack[0];
-    stack[0] = stack[1] / stack[0];
-    stack[2] = stack[3];
-    stack[1] = stack[2];
+    action = ROLL;
+    l = x;
+    x = y / x;
+    z = t;
+    y = z;
+    show();
 }
 
 void swap() {
-    int x = stack[0];
-    stack[0] = stack[1];
-    stack[1] = x;
+    action = ROLL;
+    int current = x;
+    x = y;
+    y = current;
+    show();
 }
 
 void rotate() {
-    int x = stack[0];
-    stack[0] = stack[1];
-    stack[1] = stack[2];
-    stack[2] = stack[3];
-    stack[3] = x;
-}
-
-void lstx() {
-    stack[3] = stack[2];
-    stack[2] = stack[1];
-    stack[1] = stack[0];
-    stack[0] = lastx;
+    action = ROLL;
+    int current = x;
+    x = y;
+    y = z;
+    z = t;
+    t = current;
+    show();
 }
 
 void clx() {
-    stack[0] = 0;
+    action = 0;
+    x = 0;
+    show();
 }
 
 void chs() {
-    stack[0] = -1 * stack[0];
+    x = -1 * x;
+    show();
 }
 
-void showvars() {
-    printf("lstx: %i\nx: %i y: %i z: %i t: %i\n", lastx, stack[0], stack[1], stack[2], stack[3]);
+void lstx() {
+    action = ROLL;
+    t = z;
+    z = y;
+    y = x;
+    x = l;
+    show();
+}
+
+void percent() {
+    action = ROLL;
+    l = x;
+    x = x / 100 * y;
+    z = t;
+    y = z;
+    show();
+}
+
+void sto() {
+    action = ROLL;
+    reg = x;
+    show();
+}
+
+void rcl() {
+    action = ROLL;
+    t = z;
+    z = y;
+    y = x;
+    x = reg;
+    show();
 }
 
 int main() {
-    stack[0] = 2;
+    x = 2;
     enter();
-    stack[0] = 3;
-    showvars();
+    x = 3;
+    show();
     swap();
-    showvars();
+    show();
     mul();
-    showvars();
+    show();
     rotate();
     rotate();
-    stack[0] = 8;
+    x = 8;
     chs();
-    showvars();
+    show();
     clx();
     lstx();
     chs();
-    showvars();
+    show();
 
     return 0;
 }
