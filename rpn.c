@@ -4,7 +4,7 @@ int INSERT = 1, ROLL = 2;
 int action = 0;
 int l = 0, x = 0, y = 0, z = 0, t = 0;
 int decimals = 2;
-int reg;
+int reg = 0;
 
 void show() {
     printf("lstx: %i\nx: %i y: %i z: %i t: %i\n", l, x, y, z, t);
@@ -38,8 +38,8 @@ void add() {
     action = ROLL;
     l = x;
     x = y + x;
-    z = t;
     y = z;
+    z = t;
     show();
 }
 
@@ -47,8 +47,8 @@ void sub() {
     action = ROLL;
     l = x;
     x = y - x;
-    z = t;
     y = z;
+    z = t;
     show();
 }
 
@@ -56,8 +56,8 @@ void mul() {
     action = ROLL;
     l = x;
     x = y * x;
-    z = t;
     y = z;
+    z = t;
     show();
 }
 
@@ -65,8 +65,8 @@ void div() {
     action = ROLL;
     l = x;
     x = y / x;
-    z = t;
     y = z;
+    z = t;
     show();
 }
 
@@ -112,8 +112,6 @@ void percent() {
     action = ROLL;
     l = x;
     x = x / 100 * y;
-    z = t;
-    y = z;
     show();
 }
 
@@ -124,10 +122,12 @@ void sto() {
 }
 
 void rcl() {
+    if (action == ROLL || action == INSERT) {
+        t = z;
+        z = y;
+        y = x;
+    }
     action = ROLL;
-    t = z;
-    z = y;
-    y = x;
     x = reg;
     show();
 }
