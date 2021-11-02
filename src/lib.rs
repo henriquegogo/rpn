@@ -1,13 +1,13 @@
 #[derive(PartialEq)]
-enum Actions { NONE, INSERT, ROLL, STO, RCL }
+pub enum Actions { NONE, INSERT, ROLL, STO, RCL }
 
-struct State {
-    action: Actions,
-    xs: String,
-    l: f32, x: f32, y: f32, z: f32, t: f32,
-    regten: usize,
-    regs: [f32; 20],
-    decimals: i8
+pub struct State {
+    pub action: Actions,
+    pub xs: String,
+    pub l: f32, pub x: f32, pub y: f32, pub z: f32, pub t: f32,
+    pub regten: usize,
+    pub regs: [f32; 20],
+    pub decimals: i8
 }
 
 fn main() {
@@ -27,19 +27,19 @@ fn main() {
     println!("{}", state.x);
 }
 
-fn stackup(state: &mut State) {
+pub fn stackup(state: &mut State) {
   state.t = state.z;
   state.z = state.y;
   state.y = state.x;
 }
 
-fn stackdown(state: &mut State) {
+pub fn stackdown(state: &mut State) {
   state.x = state.y;
   state.y = state.z;
   state.z = state.t;
 }
 
-fn insert(state: &mut State, c: usize) {
+pub fn insert(state: &mut State, c: usize) {
   if state.action == Actions::STO {
     state.action = Actions::ROLL;
     state.regs[state.regten + c] = state.x;
@@ -68,11 +68,11 @@ fn insert(state: &mut State, c: usize) {
   show(state);
 }
 
-fn show(state: &mut State) {
-    println!("STATE");
+pub fn show(state: &mut State) {
+    println!("Display: {} {}", state.xs, state.decimals);
 }
 
-fn decimal(state: &mut State) {
+pub fn decimal(state: &mut State) {
   if state.action == Actions::STO || state.action == Actions::RCL {
     return state.regten = 10;
   }
@@ -88,13 +88,13 @@ fn decimal(state: &mut State) {
   show(state);
 }
 
-fn enter(state: &mut State) {
+pub fn enter(state: &mut State) {
   state.action = Actions::NONE;
   stackup(state);
   show(state);
 }
 
-fn add(state: &mut State) {
+pub fn add(state: &mut State) {
   state.action = Actions::ROLL;
   state.l = state.x;
   stackdown(state);
@@ -102,7 +102,7 @@ fn add(state: &mut State) {
   show(state);
 }
 
-fn sub(state: &mut State) {
+pub fn sub(state: &mut State) {
   state.action = Actions::ROLL;
   state.l = state.x;
   stackdown(state);
@@ -110,7 +110,7 @@ fn sub(state: &mut State) {
   show(state);
 }
 
-fn mul(state: &mut State) {
+pub fn mul(state: &mut State) {
   state.action = Actions::ROLL;
   state.l = state.x;
   stackdown(state);
@@ -118,7 +118,7 @@ fn mul(state: &mut State) {
   show(state);
 }
 
-fn div(state: &mut State) {
+pub fn div(state: &mut State) {
   state.action = Actions::ROLL;
   state.l = state.x;
   stackdown(state);
@@ -126,7 +126,7 @@ fn div(state: &mut State) {
   show(state);
 }
 
-fn swap(state: &mut State) {
+pub fn swap(state: &mut State) {
   state.action = Actions::ROLL;
   let current = state.x;
   state.x = state.y;
@@ -134,7 +134,7 @@ fn swap(state: &mut State) {
   show(state);
 }
 
-fn rotate(state: &mut State) {
+pub fn rotate(state: &mut State) {
   state.action = Actions::ROLL;
   let current = state.x;
   stackdown(state);
@@ -142,58 +142,58 @@ fn rotate(state: &mut State) {
   show(state);
 }
 
-fn clx(state: &mut State) {
+pub fn clx(state: &mut State) {
   state.action = Actions::NONE;
   state.x = 0.0;
   show(state);
 }
 
-fn chs(state: &mut State) {
+pub fn chs(state: &mut State) {
   state.xs = format!("-{}", state.xs);
   state.x = -1.0 * state.x;
   show(state);
 }
 
-fn lstx(state: &mut State) {
+pub fn lstx(state: &mut State) {
   state.action = Actions::ROLL;
   stackup(state);
   state.x = state.l;
   show(state);
 }
 
-fn percent(state: &mut State) {
+pub fn percent(state: &mut State) {
   state.action = Actions::ROLL;
   state.l = state.x;
   state.x = state.x / 100.0 * state.y;
   show(state);
 }
 
-fn deltapercent(state: &mut State) {
+pub fn deltapercent(state: &mut State) {
   state.action = Actions::ROLL;
   state.l = state.x;
   state.x = (state.x - state.y) * 100.0 / state.y;
   show(state);
 }
 
-fn sto(state: &mut State) {
+pub fn sto(state: &mut State) {
   state.action = Actions::STO;
 }
 
-fn rcl(state: &mut State) {
+pub fn rcl(state: &mut State) {
   if state.action != Actions::NONE {
       stackup(state);
   }
   state.action = Actions::RCL;
 }
 
-fn square(state: &mut State) {
+pub fn square(state: &mut State) {
   state.action = Actions::ROLL;
   state.l = state.x;
   state.x = f32::powi(state.x, 2);
   show(state);
 }
 
-fn power(state: &mut State) {
+pub fn power(state: &mut State) {
   state.action = Actions::ROLL;
   state.l = state.x;
   stackdown(state);
@@ -201,24 +201,23 @@ fn power(state: &mut State) {
   show(state);
 }
 
-fn root(state: &mut State) {
+pub fn root(state: &mut State) {
   state.action = Actions::ROLL;
   state.l = state.x;
   state.x = f32::sqrt(state.x);
   show(state);
 }
 
-fn overx(state: &mut State) {
+pub fn overx(state: &mut State) {
   state.action = Actions::ROLL;
   state.l = state.x;
   state.x = 1.0 / state.x;
   show(state);
 }
 
-fn exp(state: &mut State) {
+pub fn exp(state: &mut State) {
   state.action = Actions::ROLL;
   state.l = state.x;
   state.x = f32::exp(state.x);
   show(state);
 }
-
