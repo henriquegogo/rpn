@@ -10,197 +10,210 @@ pub struct State {
     pub decimals: i8
 }
 
-pub fn stackup(state: &mut State) {
-  state.t = state.z;
-  state.z = state.y;
-  state.y = state.x;
-}
+impl State {
+    pub fn new() -> State {
+        State {
+            action: Actions::NONE,
+            xs: String::from(""),
+            l: 0.0, x: 0.0, y: 0.0, z: 0.0, t: 0.0,
+            regten: 0,
+            regs: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            decimals: 2
+        }
+    }
 
-pub fn stackdown(state: &mut State) {
-  state.x = state.y;
-  state.y = state.z;
-  state.z = state.t;
-}
+    pub fn stackup(&mut self) {
+        self.t = self.z;
+        self.z = self.y;
+        self.y = self.x;
+    }
 
-pub fn insert(state: &mut State, c: usize) {
-  if state.action == Actions::STO {
-    state.action = Actions::ROLL;
-    state.regs[state.regten + c] = state.x;
-    state.regten = 0;
-    return show(state);
-  }
-  else if state.action == Actions::RCL {
-    state.action = Actions::ROLL;
-    state.x = state.regs[state.regten + c];
-    state.regten = 0;
-    return show(state);
-  }
-  else if state.action == Actions::ROLL {
-    stackup(state);
-  }
-  state.regten = 0;
+    pub fn stackdown(&mut self) {
+        self.x = self.y;
+        self.y = self.z;
+        self.z = self.t;
+    }
 
-  if state.action == Actions::NONE || state.action == Actions::ROLL {
-      state.xs = String::from("");
-  }
+    pub fn insert(&mut self, c: usize) {
+        if self.action == Actions::STO {
+            self.action = Actions::ROLL;
+            self.regs[self.regten + c] = self.x;
+            self.regten = 0;
+            return self.show();
+        }
+        else if self.action == Actions::RCL {
+            self.action = Actions::ROLL;
+            self.x = self.regs[self.regten + c];
+            self.regten = 0;
+            return self.show();
+        }
+        else if self.action == Actions::ROLL {
+            self.stackup();
+        }
+        self.regten = 0;
 
-  state.xs = format!("{}{}", state.xs, c);
-  state.x = state.xs.parse().unwrap();
+        if self.action == Actions::NONE || self.action == Actions::ROLL {
+            self.xs = String::from("");
+        }
 
-  state.action = Actions::INSERT;
-  show(state);
-}
+        self.xs = format!("{}{}", self.xs, c);
+        self.x = self.xs.parse().unwrap();
 
-pub fn show(state: &mut State) {
-    println!("Display: {} {}", state.xs, state.decimals);
-}
+        self.action = Actions::INSERT;
+        self.show();
+    }
 
-pub fn decimal(state: &mut State) {
-  if state.action == Actions::STO || state.action == Actions::RCL {
-    return state.regten = 10;
-  }
-  else if state.action == Actions::NONE || state.action == Actions::ROLL {
-    state.action = Actions::INSERT;
-    stackup(state);
-    state.xs = String::from("");
-  }
+    pub fn show(&mut self) {
+        println!("Display: {} {}", self.xs, self.decimals);
+    }
 
-  if !state.xs.contains(".") {
-      state.xs = format!("{}.", state.xs);
-  }
-  show(state);
-}
+    pub fn decimal(&mut self) {
+        if self.action == Actions::STO || self.action == Actions::RCL {
+            return self.regten = 10;
+        }
+        else if self.action == Actions::NONE || self.action == Actions::ROLL {
+            self.action = Actions::INSERT;
+            self.stackup();
+            self.xs = String::from("");
+        }
 
-pub fn enter(state: &mut State) {
-  state.action = Actions::NONE;
-  stackup(state);
-  show(state);
-}
+        if !self.xs.contains(".") {
+            self.xs = format!("{}.", self.xs);
+        }
+        self.show();
+    }
 
-pub fn add(state: &mut State) {
-  state.action = Actions::ROLL;
-  state.l = state.x;
-  stackdown(state);
-  state.x = state.x + state.l;
-  show(state);
-}
+    pub fn enter(&mut self) {
+        self.action = Actions::NONE;
+        self.stackup();
+        self.show();
+    }
 
-pub fn sub(state: &mut State) {
-  state.action = Actions::ROLL;
-  state.l = state.x;
-  stackdown(state);
-  state.x = state.x - state.l;
-  show(state);
-}
+    pub fn add(&mut self) {
+        self.action = Actions::ROLL;
+        self.l = self.x;
+        self.stackdown();
+        self.x = self.x + self.l;
+        self.show();
+    }
 
-pub fn mul(state: &mut State) {
-  state.action = Actions::ROLL;
-  state.l = state.x;
-  stackdown(state);
-  state.x = state.x * state.l;
-  show(state);
-}
+    pub fn sub(&mut self) {
+        self.action = Actions::ROLL;
+        self.l = self.x;
+        self.stackdown();
+        self.x = self.x - self.l;
+        self.show();
+    }
 
-pub fn div(state: &mut State) {
-  state.action = Actions::ROLL;
-  state.l = state.x;
-  stackdown(state);
-  state.x = state.x / state.l;
-  show(state);
-}
+    pub fn mul(&mut self) {
+        self.action = Actions::ROLL;
+        self.l = self.x;
+        self.stackdown();
+        self.x = self.x * self.l;
+        self.show();
+    }
 
-pub fn swap(state: &mut State) {
-  state.action = Actions::ROLL;
-  let current = state.x;
-  state.x = state.y;
-  state.y = current;
-  show(state);
-}
+    pub fn div(&mut self) {
+        self.action = Actions::ROLL;
+        self.l = self.x;
+        self.stackdown();
+        self.x = self.x / self.l;
+        self.show();
+    }
 
-pub fn rotate(state: &mut State) {
-  state.action = Actions::ROLL;
-  let current = state.x;
-  stackdown(state);
-  state.t = current;
-  show(state);
-}
+    pub fn swap(&mut self) {
+        self.action = Actions::ROLL;
+        let current = self.x;
+        self.x = self.y;
+        self.y = current;
+        self.show();
+    }
 
-pub fn clx(state: &mut State) {
-  state.action = Actions::NONE;
-  state.x = 0.0;
-  show(state);
-}
+    pub fn rotate(&mut self) {
+        self.action = Actions::ROLL;
+        let current = self.x;
+        self.stackdown();
+        self.t = current;
+        self.show();
+    }
 
-pub fn chs(state: &mut State) {
-  state.xs = format!("-{}", state.xs);
-  state.x = -1.0 * state.x;
-  show(state);
-}
+    pub fn clx(&mut self) {
+        self.action = Actions::NONE;
+        self.x = 0.0;
+        self.show();
+    }
 
-pub fn lstx(state: &mut State) {
-  state.action = Actions::ROLL;
-  stackup(state);
-  state.x = state.l;
-  show(state);
-}
+    pub fn chs(&mut self) {
+        self.xs = format!("-{}", self.xs);
+        self.x = -1.0 * self.x;
+        self.show();
+    }
 
-pub fn percent(state: &mut State) {
-  state.action = Actions::ROLL;
-  state.l = state.x;
-  state.x = state.x / 100.0 * state.y;
-  show(state);
-}
+    pub fn lstx(&mut self) {
+        self.action = Actions::ROLL;
+        self.stackup();
+        self.x = self.l;
+        self.show();
+    }
 
-pub fn deltapercent(state: &mut State) {
-  state.action = Actions::ROLL;
-  state.l = state.x;
-  state.x = (state.x - state.y) * 100.0 / state.y;
-  show(state);
-}
+    pub fn percent(&mut self) {
+        self.action = Actions::ROLL;
+        self.l = self.x;
+        self.x = self.x / 100.0 * self.y;
+        self.show();
+    }
 
-pub fn sto(state: &mut State) {
-  state.action = Actions::STO;
-}
+    pub fn deltapercent(&mut self) {
+        self.action = Actions::ROLL;
+        self.l = self.x;
+        self.x = (self.x - self.y) * 100.0 / self.y;
+        self.show();
+    }
 
-pub fn rcl(state: &mut State) {
-  if state.action != Actions::NONE {
-      stackup(state);
-  }
-  state.action = Actions::RCL;
-}
+    pub fn sto(&mut self) {
+        self.action = Actions::STO;
+    }
 
-pub fn square(state: &mut State) {
-  state.action = Actions::ROLL;
-  state.l = state.x;
-  state.x = f32::powi(state.x, 2);
-  show(state);
-}
+    pub fn rcl(&mut self) {
+        if self.action != Actions::NONE {
+            self.stackup();
+        }
+        self.action = Actions::RCL;
+    }
 
-pub fn power(state: &mut State) {
-  state.action = Actions::ROLL;
-  state.l = state.x;
-  stackdown(state);
-  state.x = f32::powf(state.x, state.l);
-  show(state);
-}
+    pub fn square(&mut self) {
+        self.action = Actions::ROLL;
+        self.l = self.x;
+        self.x = f32::powi(self.x, 2);
+        self.show();
+    }
 
-pub fn root(state: &mut State) {
-  state.action = Actions::ROLL;
-  state.l = state.x;
-  state.x = f32::sqrt(state.x);
-  show(state);
-}
+    pub fn power(&mut self) {
+        self.action = Actions::ROLL;
+        self.l = self.x;
+        self.stackdown();
+        self.x = f32::powf(self.x, self.l);
+        self.show();
+    }
 
-pub fn overx(state: &mut State) {
-  state.action = Actions::ROLL;
-  state.l = state.x;
-  state.x = 1.0 / state.x;
-  show(state);
-}
+    pub fn root(&mut self) {
+        self.action = Actions::ROLL;
+        self.l = self.x;
+        self.x = f32::sqrt(self.x);
+        self.show();
+    }
 
-pub fn exp(state: &mut State) {
-  state.action = Actions::ROLL;
-  state.l = state.x;
-  state.x = f32::exp(state.x);
-  show(state);
+    pub fn overx(&mut self) {
+        self.action = Actions::ROLL;
+        self.l = self.x;
+        self.x = 1.0 / self.x;
+        self.show();
+    }
+
+    pub fn exp(&mut self) {
+        self.action = Actions::ROLL;
+        self.l = self.x;
+        self.x = f32::exp(self.x);
+        self.show();
+    }
 }

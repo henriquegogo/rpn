@@ -1,19 +1,13 @@
-use rpn::*;
+use rpn::State;
 
 #[test]
 fn test_stackdown() {
-    let mut state = State {
-        action: Actions::NONE,
-        xs: String::from(""),
-        l: 0.0, x: 1.0, y: 2.0, z: 3.0, t: 4.0,
-        regten: 0,
-        regs: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        decimals: 2
-    };
+    let mut calc = State::new();
+    calc.x = 1.0; calc.y = 2.0; calc.z = 3.0; calc.t = 4.0;
 
-    let initial_x = state.x;
-    stackdown(&mut state);
-    let final_x = state.x;
+    let initial_x = calc.x;
+    calc.stackdown();
+    let final_x = calc.x;
 
     assert_eq!(1.0, initial_x);
     assert_eq!(2.0, final_x);
