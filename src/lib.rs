@@ -60,11 +60,11 @@ impl State {
         self.x = self.xs.parse().unwrap();
 
         self.action = Actions::INSERT;
-        self.show();
+        //self.show();
     }
 
     pub fn show(&mut self) {
-        println!("Display: {} {}", self.xs, self.decimals);
+        println!("Display: {}", if self.action == Actions::INSERT { self.xs.to_string() } else { self.x.to_string() });
     }
 
     pub fn decimal(&mut self) {
