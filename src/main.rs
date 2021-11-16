@@ -28,6 +28,20 @@ fn main() {
                     "-" => calc.sub(),
                     "*" => calc.mul(),
                     "/" => calc.div(),
+                    "l" => calc.lstx(),
+                    "." => calc.decimal(),
+                    "%" => calc.percent(),
+                    "D" => calc.deltapercent(),
+                    "²" => calc.square(),
+                    "^" => calc.power(),
+                    "V" => calc.root(),
+                    "\\" => calc.overx(),
+                    "s" => calc.sto(),
+                    "r" => calc.rcl(),
+                    "x" => calc.clx(),
+                    "<" => calc.rotate(),
+                    ">" => calc.swap(),
+                    "n" => calc.swap(),
                     _ => print!("")
                 }
             }
